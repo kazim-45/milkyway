@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "milkyway-ctf"
@@ -9,7 +9,7 @@ description = "The Galactic CTF Orchestrator — modular, version-controlled too
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "Kazim", email = "kazim@milkyway-ctf.dev" }]
+authors = [{ name = "Kazim", email = "muhammadkazim387@gmail.com" }]
 keywords = ["ctf", "security", "hacking", "pentesting", "forensics", "cryptography"]
 classifiers = [
     "Development Status :: 4 - Beta",
