@@ -49,12 +49,8 @@ Repository = "https://github.com/kazim-45/milkyway"
 Documentation = "https://github.com/kazim-45/milkyway/tree/main/docs"
 "Bug Tracker" = "https://github.com/kazim-45/milkyway/issues"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["milkyway*"]
-
-[tool.setuptools.package-data]
-"milkyway" = ["data/**/*", "data/wordlists/*.txt", "data/tool_manifests/*.yaml"]
+[tool.hatch.build.targets.wheel]
+packages = ["milkyway"]
 
 [tool.black]
 line-length = 100
