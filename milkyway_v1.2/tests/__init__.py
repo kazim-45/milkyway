@@ -1,1 +1,0 @@
-"""MilkyWay test suite."""
