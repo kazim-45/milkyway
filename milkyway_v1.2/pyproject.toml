@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "milkyway-ctf"
+version = "1.3.0"
+description = "The Galactic CTF Orchestrator — modular, version-controlled toolkit for CTF competitions"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Kazim", email = "muhammadkazim387@gmail.com" }]
+keywords = ["ctf", "security", "hacking", "pentesting", "forensics", "cryptography"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Utilities",
+]
+
+dependencies = [
+    "click>=8.1",
+    "rich>=13.0",
+    "textual>=0.47",
+    "requests>=2.31",
+    "pyyaml>=6.0",
+    "python-dateutil>=2.8",
+    "humanize>=4.9",
+]
+
+[project.optional-dependencies]
+llm = ["ollama>=0.1", "openai>=1.0"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "black>=23.0", "ruff>=0.1", "mypy>=1.5"]
+
+[project.scripts]
+milkyway = "milkyway.cli.main:cli"
+mw = "milkyway.cli.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/kazim-45/milkyway"
+Repository = "https://github.com/kazim-45/milkyway"
+Documentation = "https://github.com/kazim-45/milkyway/tree/main/docs"
+"Bug Tracker" = "https://github.com/kazim-45/milkyway/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["milkyway"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=milkyway --cov-report=term-missing"
