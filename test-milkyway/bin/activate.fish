@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /media/kazim/DATA1/PROJECTS/milkyway/test-milkyway
+set -gx VIRTUAL_ENV /media/kazim/DATA1/PROJECTS/MILKYWAY/milkyway_og/test-milkyway
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH
