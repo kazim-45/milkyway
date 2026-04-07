@@ -1,0 +1,58 @@
+Source: milkyway-ctf
+Section: net
+Priority: optional
+Maintainer: Kazim <kazim@milkyway-ctf.dev>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ python3-all,
+ python3-setuptools,
+ python3-click,
+ python3-rich
+Standards-Version: 4.6.2
+Homepage: https://github.com/kazim-45/milkyway
+Vcs-Browser: https://github.com/kazim-45/milkyway
+Vcs-Git: https://github.com/kazim-45/milkyway.git
+Rules-Requires-Root: no
+
+Package: milkyway-ctf
+Architecture: all
+Depends:
+ ${python3:Depends},
+ ${misc:Depends},
+ python3-click (>= 8.1),
+ python3-rich (>= 13.0),
+ python3-yaml,
+ python3-requests,
+ python3-dateutil
+Recommends:
+ ffuf,
+ sqlmap,
+ binwalk,
+ nmap,
+ hashcat,
+ john,
+ gdb
+Suggests:
+ frida-tools,
+ apktool,
+ radare2,
+ hydra
+Description: The Galactic CTF Orchestrator
+ MilkyWay is a modular, version-controlled toolkit for Capture The Flag
+ competitions and hackathons. It organises 50+ security tools into
+ "planets" (domains) with a unified CLI, automatic version control
+ (Saturn), and an AI-powered assistant (Pluto).
+ .
+ Planets included:
+  * Mercury  — Web Security (ffuf, sqlmap, nuclei, curl)
+  * Venus    — Cryptography (hashcat, openssl, encoding/decoding)
+  * Earth    — Forensics (binwalk, strings, steghide, tshark)
+  * Mars     — Reverse Engineering (objdump, radare2, ltrace)
+  * Jupiter  — Binary Exploitation (pwntools, checksec, ROPgadget)
+  * Neptune  — Cloud & Misc (aws-cli, jwt_tool, kubectl)
+  * Uranus   — Mobile/IoT (apktool, jadx, frida, objection)
+  * Vulcan   — Network Recon & OSINT (nmap, whois, dig)
+  * Titan    — Password Attacks (hydra, crunch, wordlist mutation)
+  * Pluto    — AI Assistant (Ollama / OpenAI tool suggestions)
+  * Saturn   — Version Control (SQLite-backed run history)

@@ -677,6 +677,355 @@ def neptune_url(ctx, target, action):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+#  ♅  URANUS — Mobile / IoT
+# ══════════════════════════════════════════════════════════════════════════════
+
+@cli.group(short_help="♅  Mobile / IoT  (decompile · info · permissions · instrument · adb · strings · ssl-bypass)")
+@pass_ctx
+def uranus(ctx): """♅  Uranus — Mobile / IoT"""  # noqa: E704
+
+
+@uranus.command("decompile")
+@click.argument("apk")
+@click.option("--output-dir", "-o", default=None)
+@click.option("--tool", "-t",  default="apktool", type=click.Choice(["apktool","jadx"]))
+@pass_ctx
+def uranus_decompile(ctx, apk, output_dir, tool):
+    """Decompile an APK with apktool or jadx.
+
+    \b
+    Examples:
+      mw> uranus decompile ./app.apk
+      mw> uranus decompile ./app.apk --tool jadx -o jadx_out/
+    """
+    from milkyway.cli.planets.uranus import Uranus
+    ctx.make_planet(Uranus).decompile(apk, output_dir, tool)
+
+
+@uranus.command("info")
+@click.argument("apk")
+@pass_ctx
+def uranus_info(ctx, apk):
+    """Show APK metadata (package, version, SDK, activities).
+
+    \b
+    Examples:
+      mw> uranus info ./app.apk
+    """
+    from milkyway.cli.planets.uranus import Uranus
+    ctx.make_planet(Uranus).info(apk)
+
+
+@uranus.command("permissions")
+@click.argument("apk")
+@pass_ctx
+def uranus_permissions(ctx, apk):
+    """List declared permissions with danger rating.
+
+    \b
+    Examples:
+      mw> uranus permissions ./app.apk
+    """
+    from milkyway.cli.planets.uranus import Uranus
+    ctx.make_planet(Uranus).permissions(apk)
+
+
+@uranus.command("instrument")
+@click.argument("target", metavar="PACKAGE_OR_APP")
+@click.option("--script", "-s", default=None, help="Frida JS script path")
+@click.option("--mode",   "-m", default="frida", type=click.Choice(["frida","objection"]))
+@pass_ctx
+def uranus_instrument(ctx, target, script, mode):
+    """Dynamic instrumentation with Frida or Objection.
+
+    \b
+    Examples:
+      mw> uranus instrument com.example.app
+      mw> uranus instrument com.example.app --script hook.js
+      mw> uranus instrument com.example.app --mode objection
+    """
+    from milkyway.cli.planets.uranus import Uranus
+    ctx.make_planet(Uranus).instrument(target, script, mode)
+
+
+@uranus.command("adb")
+@click.argument("command")
+@pass_ctx
+def uranus_adb(ctx, command):
+    """Run ADB commands against a connected device.
+
+    \b
+    Examples:
+      mw> uranus adb 'shell ls /data/data'
+      mw> uranus adb 'pull /sdcard/Download/secret.txt .'
+    """
+    from milkyway.cli.planets.uranus import Uranus
+    ctx.make_planet(Uranus).adb(command)
+
+
+@uranus.command("strings")
+@click.argument("apk")
+@click.option("--grep", "-g", default=None, help="Regex filter for strings")
+@pass_ctx
+def uranus_strings(ctx, apk, grep):
+    """Extract interesting strings from APK (hardcoded secrets, URLs, keys).
+
+    \b
+    Examples:
+      mw> uranus strings ./app.apk
+      mw> uranus strings ./app.apk --grep 'api_key|secret|password'
+    """
+    from milkyway.cli.planets.uranus import Uranus
+    ctx.make_planet(Uranus).strings(apk, grep)
+
+
+@uranus.command("ssl-bypass")
+@click.argument("package")
+@pass_ctx
+def uranus_ssl_bypass(ctx, package):
+    """Attempt SSL pinning bypass with Frida/Objection.
+
+    \b
+    Examples:
+      mw> uranus ssl-bypass com.example.app
+    """
+    from milkyway.cli.planets.uranus import Uranus
+    ctx.make_planet(Uranus).ssl_bypass(package)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  🌋  VULCAN — Network Recon & OSINT
+# ══════════════════════════════════════════════════════════════════════════════
+
+@cli.group(short_help="🌋  Network Recon  (portscan · quickscan · whois · dns · subdomain · banner)")
+@pass_ctx
+def vulcan(ctx): """🌋  Vulcan — Network Recon & OSINT"""  # noqa: E704
+
+
+@vulcan.command("portscan")
+@click.argument("target")
+@click.option("--ports",  "-p", default="1-1000", show_default=True)
+@click.option("--speed",  "-T", "speed", default=3, type=int, show_default=True)
+@click.option("--no-svc",       is_flag=True, help="Skip service detection")
+@click.option("--os",    "-O",  "os_detect", is_flag=True)
+@click.option("--script","-sC", default=None, help="Nmap script(s)")
+@click.option("--output","-o",  default=None)
+@pass_ctx
+def vulcan_portscan(ctx, target, ports, speed, no_svc, os_detect, script, output):
+    """Full port scan with nmap.
+
+    \b
+    Examples:
+      mw> vulcan portscan 10.10.10.10
+      mw> vulcan portscan 10.10.10.10 --ports 1-65535 --speed 4
+      mw> vulcan portscan 10.10.10.10 --script vuln
+    """
+    from milkyway.cli.planets.vulcan import Vulcan
+    ctx.make_planet(Vulcan).portscan(target, ports, speed, not no_svc, os_detect, script, output)
+
+
+@vulcan.command("quickscan")
+@click.argument("target")
+@pass_ctx
+def vulcan_quickscan(ctx, target):
+    """Fast top-100 port scan (auto-fallback to Python if nmap missing).
+
+    \b
+    Examples:
+      mw> vulcan quickscan 10.10.10.10
+    """
+    from milkyway.cli.planets.vulcan import Vulcan
+    ctx.make_planet(Vulcan).quickscan(target)
+
+
+@vulcan.command("whois")
+@click.argument("target")
+@pass_ctx
+def vulcan_whois(ctx, target):
+    """WHOIS lookup for domain or IP.
+
+    \b
+    Examples:
+      mw> vulcan whois example.com
+      mw> vulcan whois 8.8.8.8
+    """
+    from milkyway.cli.planets.vulcan import Vulcan
+    ctx.make_planet(Vulcan).whois(target)
+
+
+@vulcan.command("dns")
+@click.argument("target")
+@click.option("--type", "-t", "record_type", default="A",
+              type=click.Choice(["A","AAAA","MX","NS","TXT","CNAME","SOA","ANY"]))
+@pass_ctx
+def vulcan_dns(ctx, target, record_type):
+    """DNS record lookup.
+
+    \b
+    Examples:
+      mw> vulcan dns example.com
+      mw> vulcan dns example.com --type MX
+      mw> vulcan dns example.com --type TXT
+    """
+    from milkyway.cli.planets.vulcan import Vulcan
+    ctx.make_planet(Vulcan).dns(target, record_type)
+
+
+@vulcan.command("subdomain")
+@click.argument("domain")
+@click.option("--wordlist", "-w", default=None)
+@pass_ctx
+def vulcan_subdomain(ctx, domain, wordlist):
+    """Subdomain brute-force via DNS resolution.
+
+    \b
+    Examples:
+      mw> vulcan subdomain example.com
+      mw> vulcan subdomain example.com -w subs.txt
+    """
+    from milkyway.cli.planets.vulcan import Vulcan
+    ctx.make_planet(Vulcan).subdomain(domain, wordlist)
+
+
+@vulcan.command("banner")
+@click.argument("host")
+@click.argument("port", type=int)
+@pass_ctx
+def vulcan_banner(ctx, host, port):
+    """Grab service banner from a port.
+
+    \b
+    Examples:
+      mw> vulcan banner 10.10.10.10 22
+      mw> vulcan banner 10.10.10.10 80
+    """
+    from milkyway.cli.planets.vulcan import Vulcan
+    ctx.make_planet(Vulcan).banner(host, port)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  🪐  TITAN — Password Attacks
+# ══════════════════════════════════════════════════════════════════════════════
+
+@cli.group(short_help="🪐  Password Attacks  (brute · spray · wordlist · cewl · analyze · mutate)")
+@pass_ctx
+def titan(ctx): """🪐  Titan — Password Attacks"""  # noqa: E704
+
+
+@titan.command("brute")
+@click.argument("target")
+@click.argument("service", default="ssh")
+@click.option("--username", "-l", default=None)
+@click.option("--user-list","-L", default=None)
+@click.option("--wordlist", "-w", default=None)
+@click.option("--port",     "-p", default=None, type=int)
+@click.option("--threads",  "-t", default=4, show_default=True)
+@pass_ctx
+def titan_brute(ctx, target, service, username, user_list, wordlist, port, threads):
+    """Login brute-force with Hydra.
+
+    \b
+    Examples:
+      mw> titan brute 10.10.10.10 ssh -l admin -w rockyou.txt
+      mw> titan brute 10.10.10.10 ftp -L users.txt -w passwords.txt
+      mw> titan brute http://target.com/login http-post-form -l admin
+    """
+    from milkyway.cli.planets.titan import Titan
+    ctx.make_planet(Titan).brute(target, service, username, user_list, wordlist, port, threads)
+
+
+@titan.command("spray")
+@click.argument("target")
+@click.argument("service", default="ssh")
+@click.option("--password", "-p", default="Password123", show_default=True)
+@click.option("--user-list","-L", default=None)
+@pass_ctx
+def titan_spray(ctx, target, service, password, user_list):
+    """Password spray — one password against many users.
+
+    \b
+    Examples:
+      mw> titan spray 10.10.10.10 ssh --password 'Summer2024!'
+      mw> titan spray 10.10.10.10 ssh -L users.txt -p 'Password123'
+    """
+    from milkyway.cli.planets.titan import Titan
+    ctx.make_planet(Titan).spray(target, service, password, user_list)
+
+
+@titan.command("wordlist")
+@click.option("--output",  "-o", default="wordlist.txt", show_default=True)
+@click.option("--min",     "min_len", default=6,  type=int, show_default=True)
+@click.option("--max",     "max_len", default=8,  type=int, show_default=True)
+@click.option("--charset", "-c", default="alnum",
+              type=click.Choice(["alpha","ALPHA","alnum","ALNUM","digits","special","hex"]))
+@click.option("--prefix",  default="")
+@click.option("--suffix",  default="")
+@pass_ctx
+def titan_wordlist(ctx, output, min_len, max_len, charset, prefix, suffix):
+    """Generate a wordlist with crunch or Python.
+
+    \b
+    Examples:
+      mw> titan wordlist -o pins.txt --charset digits --min 4 --max 4
+      mw> titan wordlist -o pass.txt --charset alnum --min 6 --max 8
+      mw> titan wordlist --prefix admin --charset digits --min 2 --max 4
+    """
+    from milkyway.cli.planets.titan import Titan
+    ctx.make_planet(Titan).wordlist(output, min_len, max_len, charset, prefix, suffix)
+
+
+@titan.command("cewl")
+@click.argument("url")
+@click.option("--depth",    "-d", default=2,   type=int, show_default=True)
+@click.option("--min-word", "-m", default=5,   type=int, show_default=True)
+@click.option("--output",   "-o", default="cewl.txt", show_default=True)
+@pass_ctx
+def titan_cewl(ctx, url, depth, min_word, output):
+    """Spider a website and build a wordlist from its content.
+
+    \b
+    Examples:
+      mw> titan cewl http://target.com
+      mw> titan cewl http://target.com -d 3 -m 6 -o custom.txt
+    """
+    from milkyway.cli.planets.titan import Titan
+    ctx.make_planet(Titan).cewl(url, depth, min_word, output)
+
+
+@titan.command("analyze")
+@click.argument("wordlist")
+@pass_ctx
+def titan_analyze(ctx, wordlist):
+    """Analyze a wordlist — stats, length distribution, charset breakdown.
+
+    \b
+    Examples:
+      mw> titan analyze rockyou.txt
+      mw> titan analyze ./wordlist.txt
+    """
+    from milkyway.cli.planets.titan import Titan
+    ctx.make_planet(Titan).analyze(wordlist)
+
+
+@titan.command("mutate")
+@click.argument("wordlist")
+@click.option("--output", "-o", default="mutated.txt", show_default=True)
+@click.option("--rules",  "-r", default="common",
+              type=click.Choice(["common"]))
+@pass_ctx
+def titan_mutate(ctx, wordlist, output, rules):
+    """Apply password mutation rules (capitalise, leet, suffixes…).
+
+    \b
+    Examples:
+      mw> titan mutate names.txt
+      mw> titan mutate names.txt -o mutations.txt
+    """
+    from milkyway.cli.planets.titan import Titan
+    ctx.make_planet(Titan).mutate(wordlist, output, rules)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 #  ♇  PLUTO — AI Assistant
 # ══════════════════════════════════════════════════════════════════════════════
 

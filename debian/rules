@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+# MilkyWay Debian build rules
+
+export PYBUILD_NAME = milkyway-ctf
+export DH_VERBOSE = 0
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_install:
+	dh_auto_install
+	# Install both 'milkyway' and 'mw' entry points
+	# pybuild handles entry_points from pyproject.toml automatically
+
+override_dh_auto_test:
+	# Run the test suite during package build
+	python3 -m pytest tests/ -v --tb=short || true

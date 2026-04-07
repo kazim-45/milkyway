@@ -1,8 +1,9 @@
 """
 MilkyWay — The Galactic CTF Orchestrator
-A modular, version-controlled toolkit for CTF competitions and hackathons.
+11-planet modular toolkit. Pure-Python core, no external tools required.
 """
 
-__version__ = "1.0.0"
-__author__ = "Kazim"
+__version__ = "2.0.0"
+__author__  = "Kazim"
 __license__ = "MIT"
+__codename__ = "NebulaDawn"
