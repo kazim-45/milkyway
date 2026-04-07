@@ -1,20 +1,21 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "milkyway-ctf"
-version = "1.0.0"
-description = "The Galactic CTF Orchestrator — modular, version-controlled toolkit for CTF competitions"
+version = "2.0.0"
+description = "The Galactic CTF Orchestrator — 11-planet modular CTF toolkit"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
-authors = [{ name = "Kazim", email = "muhammadkazim387@gmail.com" }]
-keywords = ["ctf", "security", "hacking", "pentesting", "forensics", "cryptography"]
+authors = [{ name = "Kazim", email = "kazim@milkyway-ctf.dev" }]
+keywords = ["ctf", "security", "hacking", "pentesting", "forensics", "cryptography", "osint"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -25,41 +26,88 @@ classifiers = [
     "Topic :: Utilities",
 ]
 
+# All core dependencies install via pip — no apt/brew/go required for core use
 dependencies = [
+    # UI
     "click>=8.1",
-    "rich>=13.0",
+    "rich>=13.7",
     "textual>=0.47",
+    # HTTP / Web scraping
     "requests>=2.31",
+    "httpx>=0.27",
+    "beautifulsoup4>=4.12",
+    "lxml>=4.9",
+    # Cryptography
+    "pycryptodome>=3.20",
+    "pyOpenSSL>=24.0",
+    "cryptography>=42.0",
+    "sympy>=1.12",
+    # Forensics
+    "pillow>=10.0",
+    # Binary / RE
+    "capstone>=5.0",
+    "pwntools>=4.12",
+    "ROPgadget>=7.3",
+    # Mobile
+    "androguard>=4.1",
+    # Network / OSINT
+    "dnspython>=2.6",
+    "python-whois>=0.9",
+    # Cloud / JWT
+    "PyJWT>=2.8",
+    # Password
+    "passlib>=1.7",
+    "paramiko>=3.4",
+    # AI (Pluto)
+    "openai>=1.30",
+    # Utilities
     "pyyaml>=6.0",
     "python-dateutil>=2.8",
     "humanize>=4.9",
+    "colorama>=0.4",
+    "tqdm>=4.66",
+    "tabulate>=0.9",
 ]
 
 [project.optional-dependencies]
-llm = ["ollama>=0.1", "openai>=1.0"]
-dev = ["pytest>=7.4", "pytest-cov>=4.1", "black>=23.0", "ruff>=0.1", "mypy>=1.5"]
+full = [
+    "frida-tools>=12.0",
+    "ollama>=0.2",
+    "shodan>=1.31",
+    "python-nmap>=0.7",
+    "scapy>=2.5",
+    "pyshark>=0.6",
+    "sqlmap>=1.8",
+]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "black>=23.0",
+    "ruff>=0.1",
+    "mypy>=1.5",
+]
 
 [project.scripts]
 milkyway = "milkyway.cli.main:cli"
-mw = "milkyway.cli.main:cli"
+mw       = "milkyway.cli.main:cli"
 
 [project.urls]
-Homepage = "https://github.com/kazim-45/milkyway"
-Repository = "https://github.com/kazim-45/milkyway"
+Homepage      = "https://github.com/kazim-45/milkyway"
+Repository    = "https://github.com/kazim-45/milkyway"
 Documentation = "https://github.com/kazim-45/milkyway/tree/main/docs"
 "Bug Tracker" = "https://github.com/kazim-45/milkyway/issues"
 
-[tool.hatch.build.targets.wheel]
-packages = ["milkyway"]
+[tool.setuptools.packages.find]
+where   = ["."]
+include = ["milkyway*"]
+
+[tool.setuptools.package-data]
+"milkyway" = ["data/**/*", "data/wordlists/*.txt"]
 
 [tool.black]
-line-length = 100
+line-length    = 100
 target-version = ["py39"]
-
-[tool.ruff]
-line-length = 100
-select = ["E", "F", "W", "I"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v --cov=milkyway --cov-report=term-missing"
+addopts   = "-v --tb=short"

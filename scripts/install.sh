@@ -1,157 +1,188 @@
 #!/usr/bin/env bash
-# MilkyWay Installation Script
-# Installs MilkyWay and checks/installs optional dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+#  MilkyWay CTF Suite — Production Installer v2.0
+#  Usage: curl -sSL https://raw.githubusercontent.com/kazim-45/milkyway/main/scripts/install.sh | bash
+#  Or:    bash scripts/install.sh [--full]
+#
+#  --full : also install system tools (nmap, binutils, hashcat, tshark…)
+#           requires root / sudo on Linux
+# ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
+FULL_INSTALL=0
+[[ "${1:-}" == "--full" ]] && FULL_INSTALL=1
 
-BOLD="\033[1m"
-GREEN="\033[0;32m"
-YELLOW="\033[0;33m"
-RED="\033[0;31m"
-CYAN="\033[0;36m"
-RESET="\033[0m"
+# ── Colors ────────────────────────────────────────────────────────────────────
+C="\033[0;36m"; G="\033[0;32m"; Y="\033[0;33m"
+R="\033[0;31m"; B="\033[1m"; E="\033[0m"
+ok()   { echo -e "${G}[+]${E} $*"; }
+info() { echo -e "${C}[*]${E} $*"; }
+warn() { echo -e "${Y}[!]${E} $*"; }
+err()  { echo -e "${R}[✗]${E} $*"; exit 1; }
 
-echo -e "${CYAN}"
-cat << 'EOF'
+# ── Banner ────────────────────────────────────────────────────────────────────
+echo -e "${C}"
+cat << 'BANNER'
   __  __ _ _ _          __        __
  |  \/  (_) | | ___   __\ \      / /_ _ _   _
  | |\/| | | | |/ / | | \ \ /\ / / _` | | | |
  | |  | | | |   <| |_| |\ V  V / (_| | |_| |
- |_|  |_|_|_|_|\_\\__, | \_/\_/ \__,_|\__, |
-                  |___/                |___/
+ |_|  |_|_|_|_|\_\__, | \_/\_/ \__,_|\__, |
+                  |___/               |___/
 
-  The Galactic CTF Orchestrator v1.0.0
-  by kazim-45 — github.com/kazim-45/milkyway
-EOF
-echo -e "${RESET}"
+  MilkyWay v2.0 — The Galactic CTF Orchestrator
+  by kazim-45  |  github.com/kazim-45/milkyway
+BANNER
+echo -e "${E}"
 
-# ── Detect OS ─────────────────────────────────────────────────────────────────
-
-detect_os() {
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        if command -v apt-get &>/dev/null; then
-            echo "debian"
-        elif command -v pacman &>/dev/null; then
-            echo "arch"
-        elif command -v dnf &>/dev/null; then
-            echo "fedora"
-        else
-            echo "linux"
-        fi
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "macos"
-    else
-        echo "unknown"
-    fi
-}
-
-OS=$(detect_os)
-echo -e "${BOLD}Detected OS:${RESET} $OS"
+# ── OS detection ──────────────────────────────────────────────────────────────
+OS="unknown"
+if [[ "$OSTYPE" == "darwin"* ]];  then OS="macos"; fi
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if command -v apt-get &>/dev/null; then OS="debian"
+    elif command -v pacman  &>/dev/null; then OS="arch"
+    elif command -v dnf     &>/dev/null; then OS="fedora"
+    else OS="linux"; fi
+fi
+info "Detected OS: $OS"
 
 # ── Python check ──────────────────────────────────────────────────────────────
-
-echo -e "\n${BOLD}[1/5] Checking Python...${RESET}"
+info "Checking Python 3.9+..."
 if ! command -v python3 &>/dev/null; then
-    echo -e "${RED}Python 3 not found. Please install Python 3.9+${RESET}"
-    exit 1
+    err "Python 3 not found. Install Python 3.9+ and retry."
+fi
+PY_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+PY_MIN=$(python3 -c "import sys; print(1 if sys.version_info >= (3,9) else 0)")
+[[ "$PY_MIN" == "1" ]] || err "Python $PY_VER detected. Need 3.9+."
+ok "Python $PY_VER"
+
+# ── Install MilkyWay core (pip) ───────────────────────────────────────────────
+info "Installing MilkyWay from PyPI (pip)..."
+info "This installs ALL Python security libraries — no external tools needed."
+info "Libraries: capstone, pwntools, ROPgadget, pycryptodome, androguard, dnspython, PyJWT…"
+
+# Determine pip install mode (venv or system)
+if python3 -c "import venv" &>/dev/null; then
+    VENV_DIR="$HOME/.milkyway-env"
+    if [[ ! -d "$VENV_DIR" ]]; then
+        info "Creating virtual environment at $VENV_DIR..."
+        python3 -m venv "$VENV_DIR"
+    fi
+    source "$VENV_DIR/bin/activate"
+    PIP="$VENV_DIR/bin/pip"
+else
+    PIP="pip3"
 fi
 
-PYTHON_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-echo -e "${GREEN}✓ Python ${PYTHON_VER}${RESET}"
+$PIP install --quiet --upgrade pip
+$PIP install --quiet milkyway-ctf
+ok "MilkyWay core installed"
 
-# ── Install MilkyWay ──────────────────────────────────────────────────────────
-
-echo -e "\n${BOLD}[2/5] Installing MilkyWay...${RESET}"
-pip3 install milkyway-ctf --quiet
-echo -e "${GREEN}✓ MilkyWay installed${RESET}"
-
-# ── Check tools ───────────────────────────────────────────────────────────────
-
-echo -e "\n${BOLD}[3/5] Checking optional tools...${RESET}"
-
-check_tool() {
-    local tool=$1
-    local install_hint=$2
-    if command -v "$tool" &>/dev/null; then
-        echo -e "  ${GREEN}✓${RESET} $tool"
-    else
-        echo -e "  ${YELLOW}✗${RESET} $tool  ${YELLOW}(optional — $install_hint)${RESET}"
-    fi
-}
-
-# Core tools
-check_tool curl "apt install curl"
-check_tool openssl "apt install openssl"
-check_tool strings "apt install binutils"
-check_tool file "pre-installed on most systems"
-
-# Mercury
-check_tool ffuf "go install github.com/ffuf/ffuf@latest"
-check_tool sqlmap "pip install sqlmap OR apt install sqlmap"
-check_tool nuclei "go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest"
-
-# Venus
-check_tool hashcat "apt install hashcat OR brew install hashcat"
-check_tool john "apt install john"
-
-# Earth
-check_tool binwalk "pip install binwalk OR apt install binwalk"
-check_tool exiftool "apt install exiftool OR brew install exiftool"
-check_tool tshark "apt install tshark"
-check_tool steghide "apt install steghide"
-
-# Mars
-check_tool objdump "apt install binutils"
-check_tool strace "apt install strace"
-check_tool ltrace "apt install ltrace"
-check_tool r2 "https://rada.re/n/"
-
-# Jupiter
-check_tool gdb "apt install gdb"
-check_tool checksec "apt install checksec OR pip install checksec"
-check_tool ROPgadget "pip install ROPgadget"
-
-# ── Shell completions ─────────────────────────────────────────────────────────
-
-echo -e "\n${BOLD}[4/5] Setting up shell completions...${RESET}"
-
+# ── Shell integration ─────────────────────────────────────────────────────────
+info "Setting up shell integration..."
 SHELL_NAME=$(basename "$SHELL")
-COMPLETION_DIR="$HOME/.milkyway"
-mkdir -p "$COMPLETION_DIR"
+MILKYWAY_BIN="$VENV_DIR/bin/milkyway"
+MW_BIN="$VENV_DIR/bin/mw"
 
+# Add venv bin to PATH
+SHELL_RC="$HOME/.bashrc"
+[[ "$SHELL_NAME" == "zsh" ]] && SHELL_RC="$HOME/.zshrc"
+[[ "$SHELL_NAME" == "fish" ]] && SHELL_RC="$HOME/.config/fish/config.fish"
+
+VENV_LINE="export PATH=\"$VENV_DIR/bin:\$PATH\""
+if ! grep -qF "milkyway-env" "$SHELL_RC" 2>/dev/null; then
+    echo "" >> "$SHELL_RC"
+    echo "# MilkyWay CTF Toolkit" >> "$SHELL_RC"
+    echo "$VENV_LINE" >> "$SHELL_RC"
+    ok "Added $VENV_DIR/bin to $SHELL_RC"
+fi
+
+# Tab completion
 if [[ "$SHELL_NAME" == "bash" ]]; then
-    _MILKYWAY_COMPLETE=bash_source milkyway > "$COMPLETION_DIR/milkyway-complete.bash" 2>/dev/null || true
-    BASHRC="$HOME/.bashrc"
-    if ! grep -q "milkyway-complete" "$BASHRC" 2>/dev/null; then
-        echo "source $COMPLETION_DIR/milkyway-complete.bash" >> "$BASHRC"
-        echo -e "${GREEN}✓ Bash completions added to $BASHRC${RESET}"
+    COMP_FILE="$HOME/.milkyway_complete.bash"
+    _MILKYWAY_COMPLETE=bash_source "$MILKYWAY_BIN" > "$COMP_FILE" 2>/dev/null || true
+    if ! grep -qF "milkyway_complete" "$SHELL_RC" 2>/dev/null; then
+        echo "source $COMP_FILE 2>/dev/null" >> "$SHELL_RC"
+        ok "Bash tab completion installed"
     fi
 elif [[ "$SHELL_NAME" == "zsh" ]]; then
-    _MILKYWAY_COMPLETE=zsh_source milkyway > "$COMPLETION_DIR/milkyway-complete.zsh" 2>/dev/null || true
-    ZSHRC="$HOME/.zshrc"
-    if ! grep -q "milkyway-complete" "$ZSHRC" 2>/dev/null; then
-        echo "source $COMPLETION_DIR/milkyway-complete.zsh" >> "$ZSHRC"
-        echo -e "${GREEN}✓ Zsh completions added to $ZSHRC${RESET}"
+    COMP_FILE="$HOME/.milkyway_complete.zsh"
+    _MILKYWAY_COMPLETE=zsh_source "$MILKYWAY_BIN" > "$COMP_FILE" 2>/dev/null || true
+    if ! grep -qF "milkyway_complete" "$SHELL_RC" 2>/dev/null; then
+        echo "source $COMP_FILE 2>/dev/null" >> "$SHELL_RC"
+        ok "Zsh tab completion installed"
     fi
+fi
+
+# ── Optional system tools (--full) ────────────────────────────────────────────
+if [[ $FULL_INSTALL -eq 1 ]]; then
+    info "Installing system tools (--full mode, requires sudo)..."
+
+    if [[ "$OS" == "debian" ]]; then
+        sudo apt-get update -qq
+        sudo apt-get install -y --no-install-recommends \
+            nmap whois dnsutils netcat-openbsd \
+            binutils file xxd exiftool foremost \
+            binwalk steghide tshark \
+            sqlmap \
+            radare2 ltrace strace gdb \
+            checksec hashcat john \
+            nmap hydra medusa crunch \
+            apktool \
+            p7zip-full unzip
+        ok "System tools installed (Debian/Ubuntu/Kali)"
+
+    elif [[ "$OS" == "macos" ]]; then
+        if ! command -v brew &>/dev/null; then
+            warn "Homebrew not found. Install from https://brew.sh then re-run with --full"
+        else
+            brew install nmap whois hashcat john exiftool \
+                         binutils radare2 tshark
+            ok "System tools installed (macOS)"
+        fi
+    else
+        warn "Automatic system tool install not supported on $OS. Install manually."
+    fi
+
+    # Go tools (ffuf, nuclei)
+    if command -v go &>/dev/null; then
+        info "Installing Go-based tools..."
+        go install github.com/ffuf/ffuf/v2@latest && ok "ffuf installed"
+        go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest && ok "nuclei installed"
+    else
+        warn "Go not found — ffuf and nuclei not installed (optional)"
+        warn "Install Go from https://go.dev/dl/ then run:"
+        warn "  go install github.com/ffuf/ffuf/v2@latest"
+    fi
+fi
+
+# ── Verify installation ────────────────────────────────────────────────────────
+info "Verifying installation..."
+export PATH="$VENV_DIR/bin:$PATH"
+if milkyway --version &>/dev/null; then
+    VER=$(milkyway --version 2>&1 | head -1)
+    ok "$VER"
 else
-    echo -e "${YELLOW}Manual completion setup needed for $SHELL_NAME${RESET}"
+    warn "milkyway command not found in PATH yet. Restart your shell or run:"
+    warn "  source $SHELL_RC"
 fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────
-
-echo -e "\n${BOLD}[5/5] Verifying installation...${RESET}"
-if command -v milkyway &>/dev/null; then
-    echo -e "${GREEN}✓ milkyway command available${RESET}"
-    milkyway --version
-else
-    echo -e "${YELLOW}milkyway not in PATH. Try: export PATH=\"\$HOME/.local/bin:\$PATH\"${RESET}"
-fi
-
-echo -e "\n${BOLD}${GREEN}🌌 MilkyWay is ready!${RESET}\n"
-echo -e "Quick start:"
-echo -e "  ${CYAN}milkyway${RESET}                                    # Launch TUI dashboard"
-echo -e "  ${CYAN}milkyway challenge new web1 --category web${RESET}  # Create a challenge"
-echo -e "  ${CYAN}milkyway mercury fuzz http://target.com/FUZZ${RESET} # Start fuzzing"
-echo -e "  ${CYAN}milkyway saturn log${RESET}                         # View run history"
-echo -e "  ${CYAN}milkyway pluto suggest 'base64 string found'${RESET} # Ask Pluto"
-echo -e "\nDocs: ${CYAN}https://github.com/kazim-45/milkyway${RESET}"
+echo ""
+ok "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+ok "  MilkyWay v2.0 installed successfully!"
+ok "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo -e "  ${B}Restart your shell, then:${E}"
+echo ""
+echo -e "  ${C}mw${E}                          # Interactive mw> shell"
+echo -e "  ${C}mw mercury fuzz http://target.com/FUZZ${E}"
+echo -e "  ${C}mw venus identify '<hash>'${E}"
+echo -e "  ${C}mw pluto suggest 'I found a base64 string'${E}"
+echo -e "  ${C}mw saturn log${E}               # View run history"
+echo ""
+echo -e "  ${Y}Note:${E} All core features work without external tools."
+echo -e "  ${Y}Tip:${E}  Run ${C}bash scripts/install.sh --full${E} to also install"
+echo -e "        system tools (nmap, hashcat, binutils, etc.)"
+echo ""
+echo -e "  Docs: ${C}github.com/kazim-45/milkyway${E}"

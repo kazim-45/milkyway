@@ -1,0 +1,14 @@
+milkyway-ctf (1.2.0-1) noble; urgency=medium
+
+  * Initial Debian/Ubuntu packaging
+  * 11 planets: Mercury, Venus, Earth, Mars, Jupiter, Neptune,
+    Uranus (Mobile/IoT), Vulcan (Network Recon), Titan (Password Attacks),
+    Pluto (AI), Saturn (Version Control)
+  * Dexter-style coloured interactive shell (mw> prompt)
+  * Per-planet colour coding and live task status display
+  * SET/Metasploit-style numbered menu with tab completion
+  * Saturn SQLite version control engine
+  * Challenge workspace scaffolding
+  * Pluto AI suggestions (Ollama/OpenAI backend)
+
+ -- Kazim <kazim@milkyway-ctf.dev>  Mon, 06 Apr 2026 00:00:00 +0000
