@@ -11,18 +11,25 @@
 
 ## 🚀 What is MilkyWay?
 
-**MilkyWay** is a modular, version-controlled CTF toolkit that transforms how security researchers, CTF competitors, and penetration testers interact with their toolchain. It wraps 50+ security tools into a unified, consistent CLI with automatic run versioning, challenge organization, and an AI-powered assistant.
+**MilkyWay** is a modular, version-controlled CTF toolkit designed to help security researchers, CTF players, and penetration testers stay organized, reproducible, and efficient.
 
-### The Problem It Solves
+It brings together:
+- A planetary command-line interface for web, crypto, forensics, reverse engineering, binary exploitation, cloud, and AI assistance
+- Automatic history, replay, and diffing for every command
+- Challenge workspace management with replayable context
+- An integrated TUI for fast exploration and discovery
 
-Every CTF competitor knows the struggle:
-- **Setup fatigue** — Installing tools, memorizing obscure flags, re-doing the same prep every competition
-- **Context switching** — Jumping between terminals, losing track of what you tried
-- **Messy folders** — Challenges scattered everywhere, no structure, lost notes
-- **No reproducibility** — "I swear this command worked 10 minutes ago..."
-- **Team chaos** — Multiple members trying the same thing, no coordination
+---
 
-MilkyWay turns this chaos into a **structured, auditable, and collaborative experience**.
+## 📸 Screenshots
+
+Below are the current MilkyWay interface snapshots from the `assets/` directory.
+
+![MilkyWay dashboard screenshot](assets/mw.png)
+
+![MilkyWay command flow screenshot](assets/mw1.png)
+
+![MilkyWay challenge workspace screenshot](assets/mw2.png)
 
 ---
 
@@ -40,13 +47,13 @@ cd ~/milkyway-challenges/pico_web1
 milkyway mercury fuzz http://target.com/FUZZ
 milkyway mercury sql 'http://target.com/page?id=1'
 
-# Not sure what to use? Ask Pluto
+# Ask Pluto for recommendations
 milkyway pluto suggest "I found a weird base64 string in the HTTP response"
 
-# Review what you've tried
+# Review the session history
 milkyway saturn log
 
-# Redo a successful command
+# Replay a successful run
 milkyway saturn redo 42
 
 # Launch the interactive TUI
@@ -72,9 +79,9 @@ milkyway tui
 
 ## 🎯 Feature Highlights
 
-### Saturn — Version Control for Hacking
+### Saturn — Command History with Replay
 
-Every command is automatically recorded:
+Every command run through MilkyWay is tracked and replayable.
 
 ```bash
 $ milkyway saturn log
@@ -90,10 +97,12 @@ $ milkyway saturn redo 40
 [Replaying run #40] earth carve firmware.bin
 
 $ milkyway saturn diff 41 42
-# Shows output diff between runs
+# Compare output from different commands
 ```
 
-### Challenge Workspaces
+### Challenge Workspaces — Organized Context
+
+MilkyWay creates dedicated challenge folders with metadata, notes, artifacts, and outputs.
 
 ```bash
 $ milkyway challenge new hackthebox_web --category web --url https://app.hackthebox.com/...
@@ -110,11 +119,13 @@ Path:     ~/milkyway-challenges/hackthebox_web
 ├── solutions/
 │   └── solve.py        # Starter exploit script
 ├── outputs/            # Tool outputs
-├── notes.md            # Your observations
-└── README.md           # Auto-generated with metadata
+├── notes.md            # Observations and findings
+└── README.md           # Auto-generated challenge summary
 ```
 
-### Pluto — AI-Powered Suggestions
+### Pluto — AI Guidance
+
+Pluto offers actionable suggestions based on your challenge context.
 
 ```bash
 $ milkyway pluto suggest "I found a suspicious file with no extension, it might be an image"
@@ -124,17 +135,17 @@ $ milkyway pluto suggest "I found a suspicious file with no extension, it might 
 ### Earth — detected keyword: file, image
 
 Try these commands:
-\```bash
+```bash
 milkyway earth info ./suspicious_file     # Full file analysis
 milkyway earth strings ./suspicious_file  # Extract readable strings
 milkyway earth hexdump ./suspicious_file  # Inspect raw bytes
 milkyway earth carve ./suspicious_file    # Extract embedded files
-\```
+```
 
 If it's an image, also check for steganography:
-\```bash
+```bash
 milkyway earth steg ./suspicious_file
-\```
+```
 ```
 
 ---
@@ -154,7 +165,7 @@ cd milkyway
 pip install -e .
 ```
 
-See [docs/INSTALL.md](docs/INSTALL.md) for detailed setup, shell completions, and per-OS instructions.
+See [docs/INSTALL.md](docs/INSTALL.md) for full installation and configuration details.
 
 ---
 
@@ -164,29 +175,28 @@ See [docs/INSTALL.md](docs/INSTALL.md) for detailed setup, shell completions, an
 milkyway/
 ├── milkyway/
 │   ├── cli/
-│   │   ├── main.py              # Root Click CLI + all commands
+│   │   ├── main.py              # Root Click CLI + command registration
 │   │   └── planets/
-│   │       ├── base.py          # Abstract Planet class
-│   │       ├── mercury.py       # Web Security
-│   │       ├── venus.py         # Cryptography
-│   │       ├── earth.py         # Forensics
-│   │       ├── mars.py          # Reverse Engineering
-│   │       ├── jupiter.py       # Binary Exploitation
-│   │       ├── neptune.py       # Cloud & Misc
-│   │       └── pluto.py         # AI Assistant
+│   │       ├── base.py          # Abstract planet base class
+│   │       ├── mercury.py       # Web security tools
+│   │       ├── venus.py         # Crypto utilities
+│   │       ├── earth.py         # Forensics and file analysis
+│   │       ├── mars.py          # Reverse engineering helpers
+│   │       ├── jupiter.py       # Binary exploitation helpers
+│   │       └── pluto.py         # AI assistant integration
 │   ├── core/
-│   │   ├── db.py                # Saturn SQLite engine
-│   │   ├── runner.py            # Safe subprocess wrapper
-│   │   ├── challenge_manager.py # Challenge workspace management
-│   │   └── config.py            # User configuration
+│   │   ├── db.py                # Saturn SQLite history engine
+│   │   ├── runner.py            # Safe subprocess execution
+│   │   ├── challenge_manager.py # Challenge workspace lifecycle
+│   │   └── config.py            # User configuration loader
 │   ├── tui/
-│   │   └── app.py               # Textual TUI dashboard
+│   │   └── app.py               # Textual UI dashboard
 │   └── data/
-│       └── wordlists/common.txt # Bundled wordlist
-├── tests/                       # pytest test suite (~85%+ coverage)
-├── docs/                        # Documentation
-├── scripts/install.sh           # One-line install script
-└── Dockerfile                   # Full CTF environment
+│       └── wordlists/common.txt # Bundled dictionary resources
+├── tests/                       # pytest suite
+├── docs/                        # Developer and user documentation
+├── scripts/                     # install, publish, release helpers
+└── Dockerfile                   # Full containerized environment
 ```
 
 **Tech stack**: Python 3.9+ · Click · Rich · Textual · SQLite · Ollama/OpenAI
@@ -197,39 +207,23 @@ milkyway/
 
 | Resource | Description |
 |----------|-------------|
-| [INSTALL.md](docs/INSTALL.md) | Detailed setup for all platforms |
-| [SATURN.md](docs/SATURN.md) | Saturn version control deep dive |
-| `milkyway <planet> --help` | Inline help for every command |
-| `milkyway tools` | Check tool availability |
-| `milkyway pluto cheatsheet web` | Quick reference sheets |
+| [docs/INSTALL.md](docs/INSTALL.md) | Platform installation and setup |
+| [docs/SATURN.md](docs/SATURN.md) | Version control and history features |
+| `milkyway <planet> --help` | Built-in command help |
+| `milkyway tools` | Check installed tool wrappers |
+| `milkyway pluto cheatsheet web` | Quick reference guide |
 
 ---
 
 ## 🤝 Contributing
 
-MilkyWay welcomes contributions:
-- New tool wrappers for existing planets
-- New planet implementations
-- Bug fixes and performance improvements
-- Documentation and write-ups
+Contributions are welcome for:
+- New planet tool wrappers
+- Expanded challenge support
+- Stability fixes and edge-case handling
+- Documentation, examples, and tutorials
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
-
-## 📊 Project Status
-
-| Component | Status | Version |
-|-----------|--------|---------|
-| Core CLI + Saturn | ✅ Stable | 1.0.0 |
-| Mercury (Web) | ✅ Stable | 1.0.0 |
-| Venus (Crypto) | ✅ Stable | 1.0.0 |
-| Earth (Forensics) | ✅ Stable | 1.0.0 |
-| Mars (Rev Eng) | 🔄 Beta | 0.9.0 |
-| Jupiter (Binary) | 🔄 Beta | 0.9.0 |
-| Neptune (Cloud) | 🔄 Beta | 0.9.0 |
-| Pluto (AI) | 🧪 Alpha | 0.5.0 |
-| TUI Dashboard | 🔄 Beta | 0.9.0 |
+Please review [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 ---
 
@@ -243,8 +237,8 @@ MIT License — see [LICENSE](LICENSE).
 
 **Kazim** — [github.com/kazim-45](https://github.com/kazim-45)
 
-```
+```bash
 $ milkyway --version
-MilkyWay 1.0.0 | The Galactic CTF Orchestrator
+MilkyWay 3.1.0 | The Galactic CTF Orchestrator
 "Not all who wander are lost — some are just fuzzing."
 ```
