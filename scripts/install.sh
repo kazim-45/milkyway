@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# ─────────────────────────────────────────────────────────────────────────────
-#  MilkyWay CTF Suite — Production Installer v2.0
 #  Usage: curl -sSL https://raw.githubusercontent.com/kazim-45/milkyway/main/scripts/install.sh | bash
 #  Or:    bash scripts/install.sh [--full]
 #
@@ -23,11 +21,11 @@ err()  { echo -e "${R}[✗]${E} $*"; exit 1; }
 # ── Banner ────────────────────────────────────────────────────────────────────
 echo -e "${C}"
 cat << 'BANNER'
-  __  __ _ _ _          __        __
- |  \/  (_) | | ___   __\ \      / /_ _ _   _
+  __  __ _ _ _          
+ |  \/  (_) | | ___    __  __  __  __ _  __
  | |\/| | | | |/ / | | \ \ /\ / / _` | | | |
  | |  | | | |   <| |_| |\ V  V / (_| | |_| |
- |_|  |_|_|_|_|\_\__, | \_/\_/ \__,_|\__, |
+ |_|  |_|_|_|_|\_\__,  | \_/\_/ \__,_|\__, |
                   |___/               |___/
 
   MilkyWay v2.0 — The Galactic CTF Orchestrator
